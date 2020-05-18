@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:yorglass_ik/models/suggestion.dart';
 import 'package:yorglass_ik/repositories/suggestion_repository.dart';
@@ -94,9 +96,9 @@ class _SuggestionPageState extends State<SuggestionPage> {
                                 width: 100,
                                 height: 100,
                                 child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    AuthenticationService.verifiedUser.image,
-                                  ),
+                                  backgroundImage: AuthenticationService.verifiedUser.image == null
+                              ? AssetImage("assets/default-profile.png")
+                              : MemoryImage(base64.decode(AuthenticationService.verifiedUser.image)),
                                 ),
                               ),
                               SizedBox(height: 10),
@@ -204,14 +206,16 @@ class _SuggestionPageState extends State<SuggestionPage> {
     );
   }
 
-  sendSuggestion() {
+  sendSuggestion() async {
     if (titleController.text.isNotEmpty &&
         descriptionController.text.isNotEmpty &&
         descriptionController.text.length >= 10) {
       suggestion.title = titleController.text;
       suggestion.description = descriptionController.text;
-      SuggestionRepository.instance.sendSuggestion(suggestion);
+      await SuggestionRepository.instance.sendSuggestion(suggestion);
+      // success notification
     }
+    // warning notification
     return;
   }
 }
